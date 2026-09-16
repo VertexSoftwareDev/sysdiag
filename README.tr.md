@@ -115,6 +115,13 @@ Diğer davranışlar:
 
 ## Derleme
 
+### Hazır derlenmiş program
+
+Her [GitHub Release](https://github.com/VertexSoftwareDev/sysdiag/releases/latest) sürümüne
+çalışmaya hazır bir `sysdiag.exe` (Windows x64) eklenir. Zip dosyasını indir, klasöre çıkar ve
+`sysdiag.exe`'yi bir terminalden çalıştır. Sürümler, `v*` etiketi gönderildiğinde
+`.github/workflows/release.yml` tarafından derlenir ve test edilir.
+
 ### Visual Studio 2022 veya daha yenisi (önerilen)
 
 ```powershell

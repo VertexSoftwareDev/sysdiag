@@ -1,0 +1,48 @@
+name: Release
+
+# Pushing a tag such as v1.0.0 builds, tests and publishes a GitHub Release
+# with a zipped sysdiag.exe. Release notes come from the annotated tag message.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake --preset msvc -DSYSDIAG_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build --preset msvc-release
+
+      - name: Unit tests
+        run: ctest --preset msvc-release
+
+      - name: Smoke test
+        shell: pwsh
+        run: ./scripts/smoke-test.ps1 -Exe build/msvc/Release/sysdiag.exe
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $name = "sysdiag-${{ github.ref_name }}-windows-x64"
+          New-Item -ItemType Directory $name | Out-Null
+          Copy-Item build/msvc/Release/sysdiag.exe, LICENSE, README.md, README.tr.md $name
+          Compress-Archive -Path "$name/*" -DestinationPath "$name.zip"
+          $hash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $name.zip" | Out-File -Encoding ascii "$name.zip.sha256"
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $name = "sysdiag-$tag-windows-x64"
+          gh release create $tag "$name.zip" "$name.zip.sha256" --title "sysdiag $tag" --notes-from-tag --verify-tag

@@ -114,6 +114,13 @@ Other behaviour:
 
 ## Building
 
+### Prebuilt binary
+
+A ready-to-run `sysdiag.exe` (Windows x64) is attached to every
+[GitHub Release](https://github.com/VertexSoftwareDev/sysdiag/releases/latest).
+Download the zip, extract it and run `sysdiag.exe` from a terminal. Releases are built and
+tested by `.github/workflows/release.yml` when a `v*` tag is pushed.
+
 ### Visual Studio 2022 or newer (recommended)
 
 ```powershell
