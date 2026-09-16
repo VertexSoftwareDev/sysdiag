@@ -15,6 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # checkout only fetches the tag as a plain ref; fetch the annotated tag
+      # itself so `gh release create --notes-from-tag` sees its message.
+      - name: Fetch annotated tag
+        run: git fetch --force origin "refs/tags/${{ github.ref_name }}:refs/tags/${{ github.ref_name }}"
+
       - name: Configure
         run: cmake --preset msvc -DSYSDIAG_WARNINGS_AS_ERRORS=ON
 
