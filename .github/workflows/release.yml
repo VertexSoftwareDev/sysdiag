@@ -50,4 +50,10 @@ jobs:
         run: |
           $tag = "${{ github.ref_name }}"
           $name = "sysdiag-$tag-windows-x64"
-          gh release create $tag "$name.zip" "$name.zip.sha256" --title "sysdiag $tag" --notes-from-tag --verify-tag
+          # Re-running for an existing release only refreshes its files.
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag "$name.zip" "$name.zip.sha256" --clobber
+          } else {
+            gh release create $tag "$name.zip" "$name.zip.sha256" --title "sysdiag $tag" --notes-from-tag --verify-tag
+          }
