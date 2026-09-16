@@ -1,0 +1,22 @@
+# Build output
+/build/
+/out/
+/cmake-build-*/
+CMakeUserPresets.json
+
+# IDEs
+/.vs/
+/.vscode/
+/.idea/
+*.user
+*.suo
+
+# Compiled artifacts
+*.exe
+*.obj
+*.o
+*.lib
+*.a
+*.pdb
+*.ilk
+*.dll

@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows / MSVC (${{ matrix.config }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - config: Debug
+            preset: msvc-debug
+          - config: Release
+            preset: msvc-release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake --preset msvc -DSYSDIAG_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Unit tests
+        run: ctest --preset ${{ matrix.preset }}
+
+      - name: Smoke test the executable
+        shell: pwsh
+        run: ./scripts/smoke-test.ps1 -Exe build/msvc/${{ matrix.config }}/sysdiag.exe
+
+      - name: Smoke test with Windows PowerShell 5.1
+        if: matrix.config == 'Release'
+        shell: powershell
+        run: .\scripts\smoke-test.ps1 -Exe build\msvc\Release\sysdiag.exe
+
+      - name: Upload executable
+        if: matrix.config == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sysdiag-windows-x64
+          path: build/msvc/Release/sysdiag.exe
+
+  core-sanitizers:
+    name: Linux / GCC core tests (ASan + UBSan)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configure
+        run: cmake --preset linux-sanitize
+
+      - name: Build
+        run: cmake --build --preset linux-sanitize
+
+      - name: Unit tests
+        run: ctest --preset linux-sanitize

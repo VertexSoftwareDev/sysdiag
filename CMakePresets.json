@@ -1,0 +1,64 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "msvc",
+      "displayName": "Windows - newest installed Visual Studio (x64)",
+      "description": "No generator is pinned, so CMake picks the newest Visual Studio (2022, 2026, ...).",
+      "inherits": "base",
+      "architecture": "x64",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+    },
+    {
+      "name": "ninja-debug",
+      "displayName": "Ninja - Debug (use a Developer Command Prompt on Windows)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Ninja - Release (use a Developer Command Prompt on Windows)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "linux-sanitize",
+      "displayName": "Linux - core library + tests with ASan/UBSan",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SYSDIAG_ENABLE_SANITIZERS": "ON",
+        "SYSDIAG_WARNINGS_AS_ERRORS": "ON"
+      },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "msvc-debug", "configurePreset": "msvc", "configuration": "Debug" },
+    { "name": "msvc-release", "configurePreset": "msvc", "configuration": "Release" },
+    { "name": "ninja-debug", "configurePreset": "ninja-debug" },
+    { "name": "ninja-release", "configurePreset": "ninja-release" },
+    { "name": "linux-sanitize", "configurePreset": "linux-sanitize" }
+  ],
+  "testPresets": [
+    {
+      "name": "test-base",
+      "hidden": true,
+      "output": { "outputOnFailure": true }
+    },
+    { "name": "msvc-debug", "inherits": "test-base", "configurePreset": "msvc", "configuration": "Debug" },
+    { "name": "msvc-release", "inherits": "test-base", "configurePreset": "msvc", "configuration": "Release" },
+    { "name": "ninja-debug", "inherits": "test-base", "configurePreset": "ninja-debug" },
+    { "name": "ninja-release", "inherits": "test-base", "configurePreset": "ninja-release" },
+    { "name": "linux-sanitize", "inherits": "test-base", "configurePreset": "linux-sanitize" }
+  ]
+}
